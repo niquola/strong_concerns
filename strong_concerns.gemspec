@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["niquola@gmail.com"]
   spec.description   = %q{Gem **strong_concerns** is technically helping you to create concerns in a right way, minimizing and making explicit interface between object and concern.}
   spec.summary       = %q{Gem **strong_concerns** is technically helping you to create concerns in a right way, minimizing and making explicit interface between object and concern.}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/niquola/strong_concerns"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
