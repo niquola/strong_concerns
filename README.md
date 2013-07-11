@@ -13,6 +13,22 @@ The ideal concern is ruby's Enumerable, which require only one method to be impl
 
 Gem **strong_concerns** is technically helping you to create concerns in a right way.
 
+## Installation
+
+Add this line to your application's Gemfile:
+
+    gem 'strong_concerns'
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install strong_concerns
+
+## Usage
+
 ``` ruby
 
 module AgeAssertions
@@ -51,24 +67,6 @@ if nicola.reproductive?
   puts "Cool, make me a child!"
 end
 ```
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'strong_concerns'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install strong_concerns
-
-## Usage
-
-TODO: Write usage instructions here
 
 ## Contributing
 
