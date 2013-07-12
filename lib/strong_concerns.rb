@@ -2,7 +2,7 @@ require 'forwardable'
 require "strong_concerns/version"
 
 module StrongConcerns
-  class Intermidiate
+  class Intermediate
     extend Forwardable
     attr_accessor :options
 
@@ -12,19 +12,19 @@ module StrongConcerns
     end
 
     def inspect
-      "Intermidiate<#{self.methods}>"
+      "Intermediate<#{self.methods}>"
     end
   end
 
   def concern(mod, options)
-    intermidiate_class = Class.new(Intermidiate)
-    intermidiate_class.send(:include, mod)
+    intermediate_class = Class.new(Intermediate)
+    intermediate_class.send(:include, mod)
     meths = options.fetch(:require_methods)
-    intermidiate_class.def_delegators :@__subject, *meths
+    intermediate_class.def_delegators :@__subject, *meths
 
     options.fetch(:exports_methods).each do |meth|
       define_method meth do |*args, &block|
-	((@__strong_concerns ||= {})[mod.to_s] ||= intermidiate_class.new(self, options)).send(meth,*args, &block)
+	((@__strong_concerns ||= {})[mod.to_s] ||= intermediate_class.new(self, options)).send(meth,*args, &block)
       end
     end
   end
