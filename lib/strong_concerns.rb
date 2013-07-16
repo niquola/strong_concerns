@@ -2,7 +2,7 @@ require 'forwardable'
 require "strong_concerns/version"
 
 module StrongConcerns
-  class Intermidiate
+  class Intermediate
     extend Forwardable
     attr_accessor :options
 
@@ -12,32 +12,32 @@ module StrongConcerns
     end
 
     def inspect
-      "Intermidiate<#{self.methods}>"
+      "Intermediate<#{self.methods}>"
     end
   end
 
   def class_concern(mod, options)
-    intermidiate_class = prepare_intermidiate(mod)
+    intermediate_class = prepare_intermediate(mod)
     options.fetch(:exports_methods).each do |meth|
       self.define_singleton_method meth do |*args, &block|
-	((@__strong_concerns ||= {})[mod.to_s] ||= intermidiate_class.new(self, options)).send(meth,*args, &block)
+	((@__strong_concerns ||= {})[mod.to_s] ||= intermediate_class.new(self, options)).send(meth,*args, &block)
       end
     end
   end
 
   def concern(mod, options)
-    intermidiate_class = prepare_intermidiate(mod)
+    intermediate_class = prepare_intermediate(mod)
     options.fetch(:exports_methods).each do |meth|
       self.send(:define_method, meth) do |*args, &block|
-	((@__strong_concerns ||= {})[mod.to_s] ||= intermidiate_class.new(self, options)).send(meth,*args, &block)
+	((@__strong_concerns ||= {})[mod.to_s] ||= intermediate_class.new(self, options)).send(meth,*args, &block)
       end
     end
   end
 
   private
 
-  def prepare_intermidiate(mod)
-    Class.new(Intermidiate).tap do |kls|
+  def prepare_intermediate(mod)
+    Class.new(Intermediate).tap do |kls|
       kls.send(:include, mod)
       meths = mod.require_methods
       kls.def_delegators :@__subject, *meths
