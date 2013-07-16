@@ -32,6 +32,12 @@ Or install it yourself as:
 ``` ruby
 
 module AgeAssertions
+
+  # list methods required for concern
+  def self.require_methods
+    %w[age]
+  end
+
   def young?
     age < options[:young]
   end
@@ -45,27 +51,46 @@ module AgeAssertions
   end
 end
 
+module Searchable
+  def self.require_methods
+    %w[all]
+  end
+
+  def find_by_name(name)
+    all.select {|item| item.first_name =~ /#{name}/}
+  end
+end
+
 class Person
 
   attr :age
+  attr :name
 
-  def initialize(age)
-    @age = age
+  def self.all
+    [new('nicola', 33), new('ivan', 33)]
+  end
+
+  def initialize( name, age)
+    @name, @age = name, age
   end
 
   extend StrongConcerns
 
   concern AgeAssertions,
-    require_methods: %w[age],
     exports_methods: %w[young? reproductive?],
     old: 70,
     young: 14
+
+  class_concern Searchable,
+    exports_methods: %w[find_by_name]
 end
 
-nicola = Person.new('nicola', 'rhyzhikov', 33)
+nicola = Person.new('nicola', 33)
 if nicola.reproductive?
   puts "Cool, make me a child!"
 end
+
+Person.find_by_name('nicola') #=> Person(name: 'nicola')
 ```
 
 ## Contributing

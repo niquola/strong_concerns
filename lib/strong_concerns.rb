@@ -16,16 +16,31 @@ module StrongConcerns
     end
   end
 
-  def concern(mod, options)
-    intermidiate_class = Class.new(Intermidiate)
-    intermidiate_class.send(:include, mod)
-    meths = options.fetch(:require_methods)
-    intermidiate_class.def_delegators :@__subject, *meths
-
+  def class_concern(mod, options)
+    intermidiate_class = prepare_intermidiate(mod)
     options.fetch(:exports_methods).each do |meth|
-      define_method meth do |*args, &block|
+      self.define_singleton_method meth do |*args, &block|
 	((@__strong_concerns ||= {})[mod.to_s] ||= intermidiate_class.new(self, options)).send(meth,*args, &block)
       end
+    end
+  end
+
+  def concern(mod, options)
+    intermidiate_class = prepare_intermidiate(mod)
+    options.fetch(:exports_methods).each do |meth|
+      self.send(:define_method, meth) do |*args, &block|
+	((@__strong_concerns ||= {})[mod.to_s] ||= intermidiate_class.new(self, options)).send(meth,*args, &block)
+      end
+    end
+  end
+
+  private
+
+  def prepare_intermidiate(mod)
+    Class.new(Intermidiate).tap do |kls|
+      kls.send(:include, mod)
+      meths = mod.require_methods
+      kls.def_delegators :@__subject, *meths
     end
   end
 end

@@ -2,12 +2,20 @@ require 'spec_helper'
 
 describe StrongConcerns do
   module FullNamed
+    def self.require_methods
+      %w[first_name last_name]
+    end
+
     def full_name
       "#{first_name} #{last_name}"
     end
   end
 
   module AgeAssertions
+    def self.require_methods
+      %w[age]
+    end
+
     def young?
       age < options[:young]
     end
@@ -18,6 +26,16 @@ describe StrongConcerns do
 
     def old?
       age > options[:old]
+    end
+  end
+
+  module Searchable
+    def self.require_methods
+      %w[all]
+    end
+
+    def find_by_name(name)
+      all.select {|item| item.first_name =~ /#{name}/}
     end
   end
 
@@ -33,16 +51,23 @@ describe StrongConcerns do
       @age = age
     end
 
+    def self.all
+      [
+	new('nicola','rhyzhikov', 33),
+	new('ivan','ivanov', 33)
+      ]
+    end
 
     extend StrongConcerns
 
+    class_concern Searchable,
+      exports_methods: %w[find_by_name]
+
     concern AgeAssertions,
-      require_methods: %w[age],
       exports_methods: %w[young? reproductive?],
       young: 14, old: 70
 
     concern FullNamed,
-      require_methods: %w[first_name last_name],
       exports_methods: %w[full_name]
 
   end
@@ -53,5 +78,9 @@ describe StrongConcerns do
       nicola.should_not be_young
       nicola.should be_reproductive
     end
+  end
+
+  example do
+    Person.find_by_name('nicola').should_not be_empty
   end
 end
