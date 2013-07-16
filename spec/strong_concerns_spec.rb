@@ -27,6 +27,11 @@ describe StrongConcerns do
     def old?
       age > options[:old]
     end
+
+    #should raise
+    def breaking
+      first_name
+    end
   end
 
   module Searchable
@@ -64,7 +69,7 @@ describe StrongConcerns do
       exports_methods: %w[find_by_name]
 
     concern AgeAssertions,
-      exports_methods: %w[young? reproductive?],
+      exports_methods: %w[young? reproductive? breaking],
       young: 14, old: 70
 
     concern FullNamed,
@@ -77,6 +82,10 @@ describe StrongConcerns do
       nicola.full_name.should == "nicola rhyzhikov"
       nicola.should_not be_young
       nicola.should be_reproductive
+
+      -> {
+	nicola.breaking
+      }.should raise_error(/not list method/)
     end
   end
 

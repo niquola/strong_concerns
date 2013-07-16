@@ -11,6 +11,10 @@ module StrongConcerns
       @options = options
     end
 
+    def method_missing(meth)
+      raise NameError.new("Looks like you not list method <#{meth}> in self.require_methods of concern or misspelled it")
+    end
+
     def inspect
       "Intermediate<#{self.methods}>"
     end
