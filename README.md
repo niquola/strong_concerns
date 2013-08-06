@@ -8,12 +8,12 @@ But this pattern is easilly can be abused:
   when you just spliting object behavior physicaly, not logicaly, you've got messy code.
 
 The core point is tracking the internal interface between an object and a concern!
-Minimal & explicit interface forward you to craft more clean and reusable concerns.
+Minimal & explicit interface force you to craft more clean and reusable concerns.
 The ideal concern is ruby's Enumerable, which require only one method to be implemented in hosting class.
 
 Gem **strong_concerns** is technically helping you to create concerns in a right way.
 
-For dependency tracing you should turn on role before usage!
+For dependency tracing you should turn on role before usage (DCI inspired)!
 
 ## Installation
 
@@ -33,11 +33,15 @@ Or install it yourself as:
 
 ``` ruby
 
-module AgeAssertions
+module Old
 
   # list methods required for concern
   def self.require_methods
-    %w[age]
+    %w[bith_date]
+  end
+
+  def age
+    ((Date.today - bith_date)/365.0).to_i
   end
 
   def young?
@@ -63,23 +67,16 @@ module Searchable
   end
 end
 
-class Person
-
-  attr :age
-  attr :name
+class Person < Struct.new(:name, :bith_date)
 
   def self.all
     [new('nicola', 33), new('ivan', 33)]
   end
 
-  def initialize( name, age)
-    @name, @age = name, age
-  end
-
   extend StrongConcerns
 
-  concern AgeAssertions,
-    exports_methods: %w[young? reproductive?],
+  concern Old,
+    exports_methods: %w[age young? reproductive?],
     old: 70,
     young: 14
 
@@ -87,10 +84,10 @@ class Person
     exports_methods: %w[find_by_name]
 end
 
-nicola = Person.new('nicola', 33)
+nicola = Person.new('nicola', Date.parse('1980-03-05'))
 
 nicola.reproductive? #=> raise RoleNotActive error
-nicola.as(AgeAssertions)
+nicola.as(Old)
 
 if nicola.reproductive?
   puts "Cool, make me a child!"

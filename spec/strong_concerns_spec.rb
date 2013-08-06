@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'date'
 
 describe StrongConcerns do
   module FullNamed
@@ -11,9 +12,13 @@ describe StrongConcerns do
     end
   end
 
-  module AgeAssertions
+  module Old
     def self.require_methods
-      %w[age]
+      %w[bith_date]
+    end
+
+    def age
+      ((Date.today - bith_date)/365.0).to_i
     end
 
     def young?
@@ -44,23 +49,10 @@ describe StrongConcerns do
     end
   end
 
-  class Person
-
-    attr :first_name
-    attr :last_name
-    attr :age
-
-    def initialize(first_name, last_name, age)
-      @first_name = first_name
-      @last_name = last_name
-      @age = age
-    end
+  class Person < Struct.new(:first_name, :last_name, :bith_date)
 
     def self.all
-      [
-	new('nicola','rhyzhikov', 33),
-	new('ivan','ivanov', 33)
-      ]
+      [ new('nicola','rhyzhikov', 33), new('ivan','ivanov', 33) ]
     end
 
     extend StrongConcerns
@@ -68,8 +60,8 @@ describe StrongConcerns do
     class_concern Searchable,
       exports_methods: %w[find_by_name]
 
-    concern AgeAssertions,
-      exports_methods: %w[young? reproductive? breaking],
+    concern Old,
+      exports_methods: %w[age young? reproductive? breaking],
       young: 14, old: 70
 
     concern FullNamed,
@@ -78,7 +70,7 @@ describe StrongConcerns do
   end
 
   example do
-    nicola = Person.new('nicola', 'rhyzhikov', 33)
+    nicola = Person.new('nicola', 'rhyzhikov', Date.parse('1980-03-05'))
 
     -> {
       nicola.full_name
@@ -88,7 +80,7 @@ describe StrongConcerns do
 
     nicola.full_name.should == "nicola rhyzhikov"
 
-    nicola.as(AgeAssertions)
+    nicola.as(Old)
     nicola.should_not be_young
     nicola.should be_reproductive
 
@@ -112,6 +104,5 @@ describe StrongConcerns do
     -> {
       Person.find_by_name('nicola')
     }.should raise_error(StrongConcerns::RoleNotActive)
-
   end
 end
