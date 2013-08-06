@@ -13,6 +13,8 @@ The ideal concern is ruby's Enumerable, which require only one method to be impl
 
 Gem **strong_concerns** is technically helping you to create concerns in a right way.
 
+For dependency tracing you should turn on role before usage!
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -86,11 +88,16 @@ class Person
 end
 
 nicola = Person.new('nicola', 33)
+
+nicola.reproductive? #=> raise RoleNotActive error
+nicola.as(AgeAssertions)
+
 if nicola.reproductive?
   puts "Cool, make me a child!"
 end
 
-Person.find_by_name('nicola') #=> Person(name: 'nicola')
+Person.as(Searchable)
+.find_by_name('nicola') #=> Person(name: 'nicola')
 ```
 
 ## Contributing

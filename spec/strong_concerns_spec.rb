@@ -78,18 +78,40 @@ describe StrongConcerns do
   end
 
   example do
-    Person.new('nicola', 'rhyzhikov', 33).tap do |nicola|
-      nicola.full_name.should == "nicola rhyzhikov"
-      nicola.should_not be_young
-      nicola.should be_reproductive
+    nicola = Person.new('nicola', 'rhyzhikov', 33)
 
-      -> {
-	nicola.breaking
-      }.should raise_error(/not list method/)
-    end
+    -> {
+      nicola.full_name
+    }.should raise_error(StrongConcerns::RoleNotActive)
+
+    nicola.as(FullNamed)
+
+    nicola.full_name.should == "nicola rhyzhikov"
+
+    nicola.as(AgeAssertions)
+    nicola.should_not be_young
+    nicola.should be_reproductive
+
+    -> {
+      nicola.breaking
+    }.should raise_error(/not list method/)
   end
 
-  example do
-    Person.find_by_name('nicola').should_not be_empty
+  it "class_concern" do
+    -> {
+      Person
+      .find_by_name('nicola')
+      .should_not be_empty
+    }.should raise_error(StrongConcerns::RoleNotActive)
+
+    Person
+    .as(Searchable)
+    .find_by_name('nicola')
+    .should_not be_empty
+
+    -> {
+      Person.find_by_name('nicola')
+    }.should raise_error(StrongConcerns::RoleNotActive)
+
   end
 end
